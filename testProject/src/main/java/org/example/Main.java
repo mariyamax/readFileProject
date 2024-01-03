@@ -95,10 +95,9 @@ public class Main {
             String[] elements = line.split(";");
             String firstElement = null;
             for (int i = 0; i < elements.length; i++) {
-                String element = elements[i];
-                if (!element.equals("\"\"")) {
+                if (!elements[i].equals("\"\"")) {
                     sb = new StringBuilder();
-                    String elementKey = sb.append(element).append("-").append(i).toString();
+                    String elementKey = sb.append(elements[i]).append("-").append(i).toString();
                     if (firstElement == null) {
                         firstElement = elementKey;
                     } else {
@@ -110,13 +109,17 @@ public class Main {
     }
 
     public static void makeListGroup(Map<String, Set<String>> groups, List<String> values, UnionFind unionFind) {
+
         for (String line : values) {
             String[] elements = line.split(";");
-            for (int i =0; i < elements.length; i++) {
-                if (!elements[i].equals("\"\"")) {
-                    String representative = unionFind.find(elements[i] + "-"+i);
-                    groups.computeIfAbsent(representative, k -> new HashSet<>()).add(line);
+            for (int i =0; i < elements.length;) {
+                while (elements[i].equals("\"\"") && i < elements.length-1) {
+                    i++;
                 }
+                if (!elements[i].equals("\"\"")) {
+                    groups.computeIfAbsent(unionFind.find(elements[i]+"-"+i), k -> new HashSet<>()).add(line);
+                }
+                break;
            }
         }
     }

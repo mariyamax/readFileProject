@@ -14,36 +14,22 @@ import java.util.Map;
 public class UnionFind {
 
     private final Map<String, String> parent = new HashMap<>();
-    private final Map<String, Integer> rank = new HashMap<>();
 
     // Находим представителя множества, к которому принадлежит элемент
     public String find(String item) {
-        if (!parent.containsKey(item)) {
-            parent.put(item, item);
-            rank.put(item, 0);
-        } else if (!parent.get(item).equals(item)) {
-            parent.put(item, find(parent.get(item))); // Path compression
+        parent.putIfAbsent(item, item);
+        if (!parent.get(item).equals(item)) {
+            parent.put(item, find(parent.get(item)));
         }
         return parent.get(item);
     }
 
     // Объединяем два множества
     public void union(String a, String b) {
-        String rootA = find(a);
-        String rootB = find(b);
-
-        if (rootA.equals(rootB)) {
-            return;
-        }
-
-        // Объединяем деревья с учетом ранга
-        if (rank.get(rootA) < rank.get(rootB)) {
-            parent.put(rootA, rootB);
-        } else if (rank.get(rootA) > rank.get(rootB)) {
-            parent.put(rootB, rootA);
-        } else {
-            parent.put(rootB, rootA);
-            rank.put(rootA, rank.get(rootA) + 1);
+        String parent1 = find(a);
+        String parent2 = find(b);
+        if (!parent1.equals(parent2)) {
+            parent.put(parent1, parent2);
         }
     }
 }
