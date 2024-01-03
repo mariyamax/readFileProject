@@ -13,30 +13,37 @@ import java.util.Map;
  */
 public class UnionFind {
 
-    private Map<String, String> parent = new HashMap<>();
+    private final Map<String, String> parent = new HashMap<>();
+    private final Map<String, Integer> rank = new HashMap<>();
 
-    /**
-     * Метод find определяет, в каком подмножестве находится конкретный элемент,
-     * возвращает представителя этого конкретного набора. Элемент из этого набора
-     * обычно действует как “представитель” набора.
-     */
+    // Находим представителя множества, к которому принадлежит элемент
     public String find(String item) {
-        parent.putIfAbsent(item, item);
-        if (!parent.get(item).equals(item)) {
-            parent.put(item, find(parent.get(item)));
+        if (!parent.containsKey(item)) {
+            parent.put(item, item);
+            rank.put(item, 0);
+        } else if (!parent.get(item).equals(item)) {
+            parent.put(item, find(parent.get(item))); // Path compression
         }
         return parent.get(item);
     }
 
-    /**
-     * Метод union объединяет два разных подмножества в одно подмножество,
-     * и представитель одного множества становится представителем другого.
-     */
-    public void union(String item1, String item2) {
-        String parent1 = find(item1);
-        String parent2 = find(item2);
-        if (!parent1.equals(parent2)) {
-            parent.put(parent1, parent2);
+    // Объединяем два множества
+    public void union(String a, String b) {
+        String rootA = find(a);
+        String rootB = find(b);
+
+        if (rootA.equals(rootB)) {
+            return;
+        }
+
+        // Объединяем деревья с учетом ранга
+        if (rank.get(rootA) < rank.get(rootB)) {
+            parent.put(rootA, rootB);
+        } else if (rank.get(rootA) > rank.get(rootB)) {
+            parent.put(rootB, rootA);
+        } else {
+            parent.put(rootB, rootA);
+            rank.put(rootA, rank.get(rootA) + 1);
         }
     }
 }

@@ -44,31 +44,13 @@ public class Main {
         //Группируем строки в union-find структуру
         System.out.println(StringConstants.UNION_FIND_MESSAGE);
         UnionFind uf = new UnionFind();
-        for (String line : lines) {
-            String[] elements = line.split(";");
-            String firstElement = null;
-            for (int i = 0; i < elements.length; i++) {
-                String element = elements[i];
-                if (!element.equals("\"\"")) {
-                    sb = new StringBuilder();
-                    String elementKey = sb.append(element).append("-").append(i).toString();
-                    if (firstElement == null) {
-                        firstElement = elementKey;
-                    } else {
-                        uf.union(firstElement, elementKey);
-                    }
-                }
-            }
-        }
+        makeUnionFindGroup(uf, lines);
 
         //Группироем строки в основные группы
         System.out.println(StringConstants.GROUP_MESSAGE);
         Map<String, Set<String>> groups = new HashMap<>();
-        for (String line : lines) {
-            String[] elements = line.split(";");
-            String representative = uf.find(elements[0] + "-0");
-            groups.computeIfAbsent(representative, k -> new HashSet<>()).add(line);
-        }
+        makeListGroup(groups, lines, uf);
+
 
         //Сортируем, подсчитываем и выводим группы
         List<Set<String>> sortedGroups = new ArrayList<>(groups.values());
@@ -85,11 +67,6 @@ public class Main {
                 new FileOutputStream(args[0])) {
             sb = new StringBuilder();
             System.out.println(StringConstants.GROUP_OUTPUT_MESSAGE);
-            //Здесь и ниже - пропускаем первую группу, в ней - элементы, которые не были сгруппированы
-            if (groupCount > 1 && sortedGroups.size() > 0) {
-                groupCount--;
-                sortedGroups.remove(0);
-            }
             fis.write(sb.append(StringConstants.FINAL_TITLE).append(groupCount).toString().getBytes(StandardCharsets.UTF_8));
             int groupNumber = 1;
             for (Set<String> group : sortedGroups) {
@@ -110,6 +87,38 @@ public class Main {
         }
 
         System.out.println(String.format("Program execution time - %d s",((new Date().getTime() - date.getTime())/1000)));
+    }
+
+    public static void makeUnionFindGroup(UnionFind unionFind, List<String> values) {
+        StringBuilder sb;
+        for (String line : values) {
+            String[] elements = line.split(";");
+            String firstElement = null;
+            for (int i = 0; i < elements.length; i++) {
+                String element = elements[i];
+                if (!element.equals("\"\"")) {
+                    sb = new StringBuilder();
+                    String elementKey = sb.append(element).append("-").append(i).toString();
+                    if (firstElement == null) {
+                        firstElement = elementKey;
+                    } else {
+                        unionFind.union(firstElement, elementKey);
+                    }
+                }
+            }
+        }
+    }
+
+    public static void makeListGroup(Map<String, Set<String>> groups, List<String> values, UnionFind unionFind) {
+        for (String line : values) {
+            String[] elements = line.split(";");
+            for (int i =0; i < elements.length; i++) {
+                if (!elements[i].equals("\"\"")) {
+                    String representative = unionFind.find(elements[i] + "-"+i);
+                    groups.computeIfAbsent(representative, k -> new HashSet<>()).add(line);
+                }
+           }
+        }
     }
 
 }
