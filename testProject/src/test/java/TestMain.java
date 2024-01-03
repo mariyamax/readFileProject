@@ -1,10 +1,33 @@
 import org.example.Main;
 import org.example.UnionFind;
+import org.junit.Assert;
 import org.junit.jupiter.api.Test;
 
 import java.util.*;
 
 public class TestMain {
+
+    @Test
+    public void initialTest() {
+        List values = List.of("\"111\";\"123\";\"222\"",
+                "\"200\";\"123\";\"100\"",
+                "\"300\";\"\";\"100\"",
+                "\"100\";\"200\";\"300\"",
+                "\"55\";\"\";\"67\"",
+                "\"\";\"99\";\"33\"");
+        UnionFind uf = new UnionFind();
+        Map<String, Set<String>> groups = new HashMap<>();
+        Main.makeUnionFindGroup(uf, values);
+        Main.makeListGroup(groups, values, uf);
+        //Проверяем, что пустые строки не учавствуют в выборке
+        Assert.assertFalse(groups.keySet().stream().anyMatch(key -> key.contains("\"\"")));
+        //Проверяем, нужное количество групп
+        Assert.assertEquals(4,groups.size());
+        //Проверяем корректное разделение элементов по группам
+        Assert.assertFalse(groups.values().stream().anyMatch(set -> set.containsAll(List.of(values.get(2),values.get(4)))));
+        Assert.assertTrue(groups.values().stream().anyMatch(set -> set.equals(Set.of(values.get(2),values.get(0),values.get(1)))));
+
+    }
 
     @Test
     public void simpleTest() {
@@ -143,12 +166,6 @@ public class TestMain {
         Map<String, Set<String>> groups = new HashMap<>();
         Main.makeUnionFindGroup(uf, values);
         Main.makeListGroup(groups, values, uf);
-        for (Set<String> group: groups.values()) {
-            System.out.println("----------------------");
-            System.out.println(group.size());
-            for (String str: group) {
-                System.out.println(str);
-            }
-        }
+        Assert.assertEquals(groups.size(), values.size());
     }
 }

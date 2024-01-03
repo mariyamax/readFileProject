@@ -109,7 +109,6 @@ public class Main {
     }
 
     public static void makeListGroup(Map<String, Set<String>> groups, List<String> values, UnionFind unionFind) {
-
         for (String line : values) {
             String[] elements = line.split(";");
             for (int i =0; i < elements.length;) {
