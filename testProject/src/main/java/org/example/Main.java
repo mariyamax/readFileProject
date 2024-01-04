@@ -1,9 +1,19 @@
 package org.example;
 
+import org.apache.commons.compress.archivers.sevenz.SevenZFile;
+import org.apache.commons.compress.utils.IOUtils;
+import org.apache.commons.compress.utils.SeekableInMemoryByteChannel;
+import org.apache.poi.hssf.usermodel.HSSFSheet;
+import org.apache.poi.hssf.usermodel.HSSFWorkbook;
+import org.apache.poi.ss.usermodel.Row;
+
 import java.io.*;
 import java.net.MalformedURLException;
 import java.net.URL;
+import java.nio.channels.SeekableByteChannel;
 import java.nio.charset.StandardCharsets;
+import java.nio.file.Files;
+import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.*;
@@ -11,6 +21,7 @@ import java.util.Map;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 import java.util.zip.GZIPInputStream;
+import java.util.zip.ZipInputStream;
 
 public class Main {
 
@@ -25,18 +36,20 @@ public class Main {
             throw new RuntimeException(StringConstants.URL_ERROR_MESSAGE);
         }
         List<String> lines = new ArrayList<>();
-        Pattern pattern = Pattern.compile(StringConstants.PATTERN);
+        // Pattern pattern = Pattern.compile(StringConstants.PATTERN);
         StringBuilder sb;
 
         //Используем try-with-resources, чтобы достать строки из архива через stream и гарантировать его закрытие
         System.out.println(StringConstants.READ_FILE_MESSAGE);
         try (
-                GZIPInputStream gis = new GZIPInputStream(filePath.openStream());
-                InputStreamReader isr = new InputStreamReader(gis);
+                //SeekableByteChannel channel =  filePath.openStream().equals();
+                SeekableInMemoryByteChannel channel = new SeekableInMemoryByteChannel
+                        (IOUtils.toByteArray(filePath.openStream()));
+                SevenZFile sevenZFile = new SevenZFile(channel);
+                InputStreamReader isr = new InputStreamReader(sevenZFile.getInputStream(sevenZFile.getNextEntry()));
                 BufferedReader br = new BufferedReader(isr)
         ) {
-            //Фильтруем на паттерн и учитываем уникальность
-            lines = br.lines().filter(line -> pattern.matcher(line).matches()).distinct().collect(Collectors.toList());
+            lines = br.lines().map(str -> str.replaceAll("\"","")).distinct().collect(Collectors.toList());
         } catch (Exception e) {
             throw new RuntimeException(StringConstants.EXTERNAL_FILE_ERROR_MESSAGE);
         }
@@ -95,7 +108,8 @@ public class Main {
             String[] elements = line.split(";");
             String firstElement = null;
             for (int i = 0; i < elements.length; i++) {
-                if (!elements[i].equals("\"\"")) {
+                if (!elements[i].isEmpty() && !elements[i].isBlank()) {
+               // if (!elements[i].equals("\"\"")) {
                     sb = new StringBuilder();
                     String elementKey = sb.append(elements[i]).append("-").append(i).toString();
                     if (firstElement == null) {
@@ -112,10 +126,10 @@ public class Main {
         for (String line : values) {
             String[] elements = line.split(";");
             for (int i =0; i < elements.length;) {
-                while (elements[i].equals("\"\"") && i < elements.length-1) {
+                while ((elements[i].isEmpty() || elements[i].isBlank()) && i < elements.length-1) {
                     i++;
                 }
-                if (!elements[i].equals("\"\"")) {
+                if (!elements[i].isEmpty() && !elements[i].isBlank()) {
                     groups.computeIfAbsent(unionFind.find(elements[i]+"-"+i), k -> new HashSet<>()).add(line);
                 }
                 break;

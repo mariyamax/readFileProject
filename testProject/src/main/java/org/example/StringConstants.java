@@ -5,9 +5,9 @@ package org.example;
  * В классе {@link Main} используется остаточно много строк, чтоб выделить им отдельное место
  */
 public class StringConstants {
-    public static final String URL = "https://github.com/PeacockTeam/new-job/releases/download/v1.0/lng-4.txt.gz";
+    public static final String URL = "https://github.com/PeacockTeam/new-job/releases/download/v1.0/lng-big.7z";
 
-    public static final String PATTERN = "^\"(\\d*|)\"(;\"(\\d*|)\")*$";
+    public static final String PATTERN = "^(\\d*|)(;(\\d*|))*$";
 
     public static final String DEFAULT_OUTPUT = "file.txt";
 
