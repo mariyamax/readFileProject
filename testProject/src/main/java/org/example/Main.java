@@ -3,16 +3,25 @@ package org.example;
 import org.apache.commons.compress.archivers.sevenz.SevenZFile;
 import org.apache.commons.compress.utils.IOUtils;
 import org.apache.commons.compress.utils.SeekableInMemoryByteChannel;
+import org.apache.poi.hssf.usermodel.HSSFSheet;
+import org.apache.poi.hssf.usermodel.HSSFWorkbook;
+import org.apache.poi.ss.usermodel.Row;
 
 import java.io.*;
 import java.net.MalformedURLException;
 import java.net.URL;
+import java.nio.channels.SeekableByteChannel;
 import java.nio.charset.StandardCharsets;
+import java.nio.file.Files;
+import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.*;
 import java.util.Map;
+import java.util.regex.Pattern;
 import java.util.stream.Collectors;
+import java.util.zip.GZIPInputStream;
+import java.util.zip.ZipInputStream;
 
 public class Main {
 
@@ -27,11 +36,13 @@ public class Main {
             throw new RuntimeException(StringConstants.URL_ERROR_MESSAGE);
         }
         List<String> lines = new ArrayList<>();
+        // Pattern pattern = Pattern.compile(StringConstants.PATTERN);
         StringBuilder sb;
 
         //Используем try-with-resources, чтобы достать строки из архива через stream и гарантировать его закрытие
         System.out.println(StringConstants.READ_FILE_MESSAGE);
         try (
+                //SeekableByteChannel channel =  filePath.openStream().equals();
                 SeekableInMemoryByteChannel channel = new SeekableInMemoryByteChannel
                         (IOUtils.toByteArray(filePath.openStream()));
                 SevenZFile sevenZFile = new SevenZFile(channel);
@@ -98,6 +109,7 @@ public class Main {
             String firstElement = null;
             for (int i = 0; i < elements.length; i++) {
                 if (!elements[i].isEmpty() && !elements[i].isBlank()) {
+               // if (!elements[i].equals("\"\"")) {
                     sb = new StringBuilder();
                     String elementKey = sb.append(elements[i]).append("-").append(i).toString();
                     if (firstElement == null) {

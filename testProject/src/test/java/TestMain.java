@@ -1,7 +1,6 @@
 import org.example.Main;
 import org.example.UnionFind;
 import org.junit.Assert;
-import org.junit.Ignore;
 import org.junit.jupiter.api.Test;
 
 import java.util.*;
@@ -9,7 +8,6 @@ import java.util.*;
 public class TestMain {
 
     @Test
-    @Ignore
     public void initialTest() {
         List values = List.of("\"111\";\"123\";\"222\"",
                 "\"200\";\"123\";\"100\"",
@@ -32,7 +30,6 @@ public class TestMain {
     }
 
     @Test
-    @Ignore
     public void simpleTest() {
         List values = List.of("\"79162191646\";\"79941628494\";\"79868500985\";\"\";\"79385613336\";\"79450648876\";\"79350229497\";\"\";\"79389092711\"",
                 "\"79448754565\";\"79662521341\";\"79809720225\";\"79046308676\";\"79915766224\";\"79794380754\";\"79957046662\"",
